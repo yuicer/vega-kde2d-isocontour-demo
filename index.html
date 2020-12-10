@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="./vega.js"></script>
+  </head>
+  <body>
+    <div id="canvas"></div>
+  </body>
+  <script>
+    const data = {
+      width: 600,
+      height: 600,
+      data: [
+        {
+          name: 'source',
+          values: [
+            { x: 1, y: 1, z: 50 },
+            { x: 2, y: 1, z: 10 },
+            { x: 3, y: 1, z: 10 },
+            { x: 4, y: 1, z: 10 },
+            { x: 5, y: 1, z: 10 },
+            { x: 6, y: 1, z: 10 },
+            { x: 1, y: 2, z: 10 },
+            { x: 2, y: 2, z: 10 },
+            { x: 3, y: 2, z: 10 },
+            { x: 4, y: 2, z: 10 },
+            { x: 5, y: 2, z: 10 },
+            { x: 6, y: 2, z: 10 },
+            { x: 1, y: 3, z: 10 },
+            { x: 2, y: 3, z: 10 },
+            { x: 3, y: 3, z: 10 },
+            { x: 4, y: 3, z: 10 },
+            { x: 5, y: 3, z: 10 },
+            { x: 6, y: 3, z: 10 },
+            { x: 1, y: 4, z: 10 },
+            { x: 2, y: 4, z: 10 },
+            { x: 3, y: 4, z: 10 },
+            { x: 4, y: 4, z: -50 },
+            { x: 5, y: 4, z: 10 },
+            { x: 6, y: 4, z: 10 },
+            { x: 1, y: 5, z: 10 },
+            { x: 2, y: 5, z: 10 },
+            { x: 3, y: 5, z: 10 },
+            { x: 4, y: 5, z: 10 },
+            { x: 5, y: 5, z: 10 },
+            { x: 6, y: 5, z: 10 },
+            { x: 1, y: 6, z: 10 },
+            { x: 2, y: 6, z: 10 },
+            { x: 3, y: 6, z: 10 },
+            { x: 4, y: 6, z: 10 },
+            { x: 5, y: 6, z: 10 },
+            { x: 6, y: 6, z: 10 },
+          ],
+        },
+        {
+          name: 'density',
+          source: 'source',
+          transform: [
+            {
+              type: 'kde2d',
+              size: [{ signal: 'width' }, { signal: 'height' }],
+              x: { expr: "scale('x', datum.x)" },
+              y: { expr: "scale('y', datum.y)" },
+              weight: 'z',
+              counts: true,
+            },
+          ],
+        },
+        {
+          name: 'contours',
+          source: 'density',
+          transform: [
+            {
+              type: 'isocontour',
+              field: 'grid',
+              levels: 30,
+            },
+          ],
+        },
+      ],
+
+      scales: [
+        {
+          name: 'color',
+          type: 'linear',
+          domain: {
+            data: 'contours',
+            field: 'contour.value',
+          },
+          range: 'category',
+        },
+        {
+          name: 'x',
+          type: 'linear',
+          round: true,
+          nice: true,
+          zero: false,
+          domain: { data: 'source', field: 'x' },
+          range: 'width',
+        },
+        {
+          name: 'y',
+          type: 'linear',
+          round: true,
+          nice: true,
+          zero: false,
+          domain: { data: 'source', field: 'y' },
+          range: 'height',
+        },
+      ],
+
+      marks: [
+        {
+          type: 'path',
+          clip: true,
+          from: { data: 'contours' },
+          encode: {
+            enter: {
+              strokeWidth: { value: 4 },
+              fill: { value: 'blue' },
+              fill: {
+                scale: 'color',
+                field: 'contour.value',
+              },
+              stroke: { value: 'black' },
+            },
+          },
+          transform: [{ type: 'geopath', field: 'datum.contour' }],
+        },
+      ],
+    };
+    const view = new vega.View(vega.parse(data), {
+      renderer: 'canvas',
+      container: '#canvas',
+    });
+    view.runAsync();
+  </script>
+</html>
